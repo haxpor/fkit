@@ -1,3 +1,6 @@
 # node modules
 node_modules/
 
+# ignore any .log as usually used to log from during live of server
+*.log
+

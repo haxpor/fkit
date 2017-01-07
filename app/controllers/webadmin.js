@@ -1,9 +1,7 @@
 /**
  * Module dependencies.
  */
-var ElizaBot = require('eliza/elizabot.js')
 var util = require("util");
-var elizas = {};
 
 exports.index = function(req, res, next) {
 
@@ -14,25 +12,7 @@ exports.index = function(req, res, next) {
 
 exports.message = function (from, to, message) {
   // figure out if this is for us
- 
-
- 
-  // do we already have a bot for this user?
-var say = "";  
-var eliza = elizas[from]
-  if (!eliza) {
-    eliza = elizas[from] = new ElizaBot
-    var init = elizas[from].getInitial()
-    say = init;
-    // just add it to the corpus so we rememeber it for later
-    eliza.transform(message);
-  } else {
-
-  // otherwise, pick up
-  say = eliza.transform(message);
-  if (eliza.quit) delete elizas[from]
-	}
-	return say;
+ 	return "i Love u";
 }
 
 exports.receive = function(req, res, next) {
