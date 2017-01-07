@@ -25,7 +25,7 @@ require('./config/routes')(app);
 // Start the app by listening on <port>
 var port = process.env.PORT || 9000;
 app.listen(port, '127.0.0.1', function() {
-	console.log(common.util.format('%s | rdwechatbot app started on port %d',(new Date()), port));
+	console.log(common.util.format('%s | fkit-wechatbot app started on port %d',(new Date()), port));
 	console.log("=== LOGS ==========================================");
 });
 
