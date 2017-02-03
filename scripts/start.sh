@@ -11,12 +11,12 @@ if [ "$RESULT" != "" ]
 then
     kill -9 $RESULT && echo "killed existing fkit server instance"
 
-    node ~/Data/Projects/fkit/server.js >> ~/Data/Projects/fkit/fkit-server.log 2>&1 &
+    node ../server.js >> ../fkit-server.log 2>&1 &
 	if [ $? -eq 0 ]; then
 		echo "started fkit server instance"
 	fi
 else
-    node ~/Data/Projects/fkit/server.js >> ~/Data/Projects/fkit/fkit-server.log 2>&1 &
+    node ../server.js >> ../fkit-server.log 2>&1 &
 	if [ $? -eq 0 ]; then
 		echo "started fkit server instance"
 	fi
