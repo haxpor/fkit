@@ -2,6 +2,7 @@
  * Module dependencies.
  */
 var util = require("util");
+var rFormatter = require("../message/reply-msg-format.js");
 
 exports.index = function(req, res, next) {
 
@@ -34,32 +35,72 @@ exports.index = function(req, res, next) {
 	}
 }
 
-exports.message = function (from, to, message) {
+/*
+	Process message then return object containing content and its message type.
+
+	Return: { content: *String*, type: *String*, ... }
+	... depends on type of message to return
+ */
+exports.processMessage = function (from, to, message) {
   // figure out if this is for us
- 	return "i Love u";
+ 	//return "i Love u";
+
+ 	// no command, or just plain text => msg
+ 	if (message.search(":") == -1) {
+ 		return { content: 'You sent: ' + message, type: 'text' };
+ 	}
+ 	// other commands
+ 	else {
+ 		var tokens = message.split(" ", 2);
+ 		if (tokens.length > 0) {
+ 			return exports.processCommand(tokens[0], tokens[1]);
+ 		}
+ 		else {
+ 			// malformed
+ 			return { content: 'msg malformed', type: 'text' };
+ 		}
+ 	}
+}
+
+exports.processCommand = function(command, paramStr) {
+	// no command
+	if (command == null || command == "") {
+		return null;
+	}
+
+	if (command == ":translate") {
+		var tokens = paramStr.split(' ');
+		return { content: tokens[0], type: 'link' };
+	}
+	else {
+		return { content: 'unsupported command', type: 'text' };
+	}
 }
 
 exports.receive = function(req, res, next) {
-	//curl -X POST --data @sample.xml http://localhost:5003/ --header "Content-Type:text/xml"
+	console.log("receiving: ", req.body.xml);
 	
-	// { xml: 
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:    { tousername: [ 'gh_5108e39bfd75' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      fromusername: [ 'oDvuOuMVDkSj4iU_Vh3mf0sHjyhg' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      createtime: [ '1394704892' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      msgtype: [ 'text' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      content: [ 'How are you' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      msgid: [ '5990211898911335179' ] } }
-	
-	
-	tousername = req.body.xml.tousername[0];
-	fromusername = req.body.xml.fromusername[0];
+	// get content sending in from user
+	toUser = req.body.xml.tousername[0];
+	fromUser = req.body.xml.fromusername[0];
 	msgtype = req.body.xml.msgtype[0];
 	content = req.body.xml.content[0];
-	createtime = parseInt(req.body.xml.createtime[0]);
+	creationTime = parseInt(req.body.xml.createtime[0]);
 	res.contentType("application/xml");
-	reply = exports.message(tousername,fromusername,content)
-	str = util.format("<xml><ToUserName>%s</ToUserName><FromUserName>%s</FromUserName><CreateTime>%d</CreateTime><MsgType>text</MsgType><Content><![CDATA[%s]]></Content></xml>",fromusername,tousername,createtime+1,reply);
-	console.log(str);
-	res.send(str);
+
+	var retObj = exports.processMessage(toUser, fromUser, content);
+	console.log(retObj);
+	var responseStr = null;
+
+	if (retObj.type == 'text') {
+		responseStr = rFormatter.msg(retObj.content, fromUser, toUser, creationTime+1);
+	}
+	else if (retObj.type == 'link') {
+		//url, title, description, toUser, fromUser, creationTime
+		responseStr = rFormatter.rich(retObj.content, 'https://7f11b9aa.ngrok.io/fkit/images/sample-pic.jpg', 'Link title', 'Link Description', fromUser, toUser, creationTime+1);
+	}
+
+	console.log("response: ", responseStr);
+	res.send(responseStr);
 }
 
