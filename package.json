@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "async": "~2.1.1",
+    "bfet": "^1.0.3",
     "body-parser": "~1.15.2",
     "express": "~3.21.2",
     "express-xml-bodyparser": "~0.3.0",

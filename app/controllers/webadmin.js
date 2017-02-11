@@ -4,6 +4,7 @@
 var util = require("util");
 var rFormatter = require("../message/reply-msg-format.js");
 var commands = require("../message/commands");
+var errorCode = require("../core/error-code");
 
 // processor's functions to process message for each command type
 var p_translate = require("../message/processor-translate");
@@ -46,32 +47,39 @@ exports.index = function(req, res, next) {
 	... depends on type of message to return
  */
 exports.processMessage = function (from, to, message) {
-  // figure out if this is for us
- 	//return "i Love u";
 
- 	// no command, or just plain text => msg
- 	if (message.search(":") == -1) {
- 		return { content: 'You sent: ' + message, type: 'text' };
- 	}
- 	// other commands
- 	else {
- 		var tokens = message.split(" ");
- 		var command = tokens[0];
- 		tokens.shift();	// get only params
- 		if (tokens.length > 0) {
- 			return exports.processCommand(command, tokens);
- 		}
- 		else {
- 			// malformed
- 			return { content: 'msg malformed', type: 'text' };
- 		}
- 	}
+	return new Promise( (resolve, reject) => {
+
+		// no command, or just plain text => msg
+	 	if (message.search(":") == -1) {
+	 		return resolve({ content: 'You entered: ' + message, type: 'text' });
+	 	}
+	 	// other commands
+	 	else {
+	 		var tokens = message.split(" ");
+	 		var command = tokens[0];
+	 		tokens.shift();	// get only params
+	 		if (tokens.length > 0) {
+	 			console.log('root');
+	 			return exports.processCommand(command, tokens, resolve, reject);
+	 		}
+	 		else {
+	 			// malformed
+	 			var e = new Error('Messge is malformed. Follow : by a command name.');
+	 			e.code = errorCode.commandMalformed;
+	 			return reject(e);
+	 		}
+	 	}
+	});
 }
 
-exports.processCommand = function(command, params) {
+// relay promise
+exports.processCommand = function(command, params, resolve, reject) {
 	// no command
 	if (command == null || command == "") {
-		return null;
+		var e = new Error("Command is null or empty.");
+		e.code = errorCode.commandIsNullOrEmpty;
+		return reject(e);
 	}
 
 	// lower case input command
@@ -79,10 +87,13 @@ exports.processCommand = function(command, params) {
 
 	// check for matching of command then return appropriate result
 	if (lcCommand == commands.translate) {
-		return p_translate(params);
+		console.log('p_translate');
+		return p_translate(params, resolve, reject);
 	}
 	else {
-		return { content: 'unsupported command', type: 'text' };
+		var e = new Error("Command is not recognized. Make sure your input command is correct.");
+		e.code = errorCode.commandNotRecognized;
+		return reject(e);
 	}
 }
 
@@ -97,19 +108,37 @@ exports.receive = function(req, res, next) {
 	creationTime = parseInt(req.body.xml.createtime[0]);
 	res.contentType("application/xml");
 
-	var retObj = exports.processMessage(toUser, fromUser, content);
-
 	var responseStr = null;
 
-	if (retObj.type == 'text') {
-		responseStr = rFormatter.msg(retObj.content, fromUser, toUser, creationTime+1);
-	}
-	else if (retObj.type == 'link') {
-		//url, title, description, toUser, fromUser, creationTime
-		responseStr = rFormatter.rich(retObj.content, 'https://66fce469.ngrok.io/fkit/images/sample-pic.jpg', 'Link title', 'Link Description', fromUser, toUser, creationTime+1);
-	}
+	exports.processMessage(toUser, fromUser, content)
+		.then((result) => {
 
-	console.log("response: ", responseStr);
-	res.send(responseStr);
+			if (result.type == 'text') {
+				responseStr = rFormatter.msg(result.content, fromUser, toUser, creationTime+1);
+			}
+			else if (result.type == 'link') {
+				//url, title, description, toUser, fromUser, creationTime
+				responseStr = rFormatter.rich(result.content, 'https://66fce469.ngrok.io/fkit/images/sample-pic.jpg', 'Link title', 'Link Description', fromUser, toUser, creationTime+1);
+			}
+
+			console.log("response: ", responseStr);
+			res.send(responseStr);
+
+		}, (e) => {
+			if (e.code == errorCode.commandMalformed) {
+				responseStr = rFormatter.msg(e.message, fromUser, toUser, creationTime+1);
+			}
+			else if (e.code == errorCode.commandIsNullOrEmpty) {
+				responseStr = rFormatter.msg('Unregconized error code. Capture current screenshot and send it to haxpor@gmail.com for support', fromUser, toUser, creationTime+1);
+			}
+			else if (e.code == errorCode.commandNotRecognized) {
+				responseStr = rFormatter.msg(e.message, fromUser, toUser, creationTime+1);
+			}
+			else {
+				responseStr = rFormatter.msg('Error code ${e.code} [${e.message}]', fromUser, toUser, creationTime+1);
+			}
+
+			res.send(responseStr);
+		});
 }
 

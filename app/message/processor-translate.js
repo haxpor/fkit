@@ -1,14 +1,25 @@
 /**
  * Here is the declaration for 'translate' command's processor
+ * Relay promise
  * 
  * require it: var p_translate = require('processor-translate')
  * use it: p_translate(params)
  */
 
-module.exports = function(params) {
+var bfet = require('bfet');
+
+module.exports = function(params, resolve, reject) {
 
 	// params: url [from_lang] [to_lang]
 	console.log(params[0], params[1], params[2]);
 
-	return { content: params[0], type: 'link' };
+	bfet.get(params[0], null, { json_parse: false })
+		.then((result) => {
+			console.log('result from bfet');
+			// process result here...
+			return resolve({ content: params[0], type: 'link' });
+		}, (e) => {
+			console.log('error from bfet');
+			return reject(e);
+		});
 }
