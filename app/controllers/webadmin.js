@@ -3,6 +3,10 @@
  */
 var util = require("util");
 var rFormatter = require("../message/reply-msg-format.js");
+var commands = require("../message/commands");
+
+// processor's functions to process message for each command type
+var p_translate = require("../message/processor-translate");
 
 exports.index = function(req, res, next) {
 
@@ -51,9 +55,11 @@ exports.processMessage = function (from, to, message) {
  	}
  	// other commands
  	else {
- 		var tokens = message.split(" ", 2);
+ 		var tokens = message.split(" ");
+ 		var command = tokens[0];
+ 		tokens.shift();	// get only params
  		if (tokens.length > 0) {
- 			return exports.processCommand(tokens[0], tokens[1]);
+ 			return exports.processCommand(command, tokens);
  		}
  		else {
  			// malformed
@@ -62,15 +68,18 @@ exports.processMessage = function (from, to, message) {
  	}
 }
 
-exports.processCommand = function(command, paramStr) {
+exports.processCommand = function(command, params) {
 	// no command
 	if (command == null || command == "") {
 		return null;
 	}
 
-	if (command == ":translate") {
-		var tokens = paramStr.split(' ');
-		return { content: tokens[0], type: 'link' };
+	// lower case input command
+	var lcCommand = command.toLowerCase();
+
+	// check for matching of command then return appropriate result
+	if (lcCommand == commands.translate) {
+		return p_translate(params);
 	}
 	else {
 		return { content: 'unsupported command', type: 'text' };
@@ -89,7 +98,7 @@ exports.receive = function(req, res, next) {
 	res.contentType("application/xml");
 
 	var retObj = exports.processMessage(toUser, fromUser, content);
-	console.log(retObj);
+
 	var responseStr = null;
 
 	if (retObj.type == 'text') {
@@ -97,7 +106,7 @@ exports.receive = function(req, res, next) {
 	}
 	else if (retObj.type == 'link') {
 		//url, title, description, toUser, fromUser, creationTime
-		responseStr = rFormatter.rich(retObj.content, 'https://7f11b9aa.ngrok.io/fkit/images/sample-pic.jpg', 'Link title', 'Link Description', fromUser, toUser, creationTime+1);
+		responseStr = rFormatter.rich(retObj.content, 'https://66fce469.ngrok.io/fkit/images/sample-pic.jpg', 'Link title', 'Link Description', fromUser, toUser, creationTime+1);
 	}
 
 	console.log("response: ", responseStr);
