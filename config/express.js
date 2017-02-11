@@ -1,4 +1,3 @@
-
 /*!
  * Module dependencies.
  */
@@ -15,7 +14,6 @@ var config = require('./config');
 /*!
  * Expose
  */
-
 module.exports = function (app, config) {
 	
 	app.set('showStackError', true)

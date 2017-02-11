@@ -1,4 +1,3 @@
-
 /*!
  * Module dependencies.
  */
@@ -17,7 +16,6 @@ Baidut.builder
 /**
  * Expose config
  */
-
 module.exports = {
 	root: root_path,
 	prefix: prefix_path,
