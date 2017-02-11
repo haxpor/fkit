@@ -15,11 +15,11 @@ module.exports = function(params, resolve, reject) {
 
 	bfet.get(params[0], null, { json_parse: false })
 		.then((result) => {
-			console.log('result from bfet');
+			console.log('got result from bfet');
 			// process result here...
 			return resolve({ content: params[0], type: 'link' });
 		}, (e) => {
-			console.log('error from bfet');
+			console.log('got error from bfet');
 			return reject(e);
 		});
 }

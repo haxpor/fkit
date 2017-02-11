@@ -135,7 +135,7 @@ exports.receive = function(req, res, next) {
 				responseStr = rFormatter.msg(e.message, fromUser, toUser, creationTime+1);
 			}
 			else {
-				responseStr = rFormatter.msg('Error code ${e.code} [${e.message}]', fromUser, toUser, creationTime+1);
+				responseStr = rFormatter.msg("Error code " + e.code + " [" + e.message + "]", fromUser, toUser, creationTime+1);
 			}
 
 			res.send(responseStr);
