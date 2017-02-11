@@ -7,6 +7,7 @@
 // controllers
 var webadmin = require('../app/controllers/webadmin');
 var xmlparser = require('express-xml-bodyparser');
+var config = require('./config');
 
 /**
  * Expose
@@ -16,7 +17,7 @@ var xmlparser = require('express-xml-bodyparser');
 module.exports = function (app) {
 
 	// Webadmin
-	app.get('/fkit', webadmin.index);
-	app.post('/fkit', xmlparser({trim: false, explicitArray: false}), webadmin.receive);
+	app.get(config.prefix, webadmin.index);
+	app.post(config.prefix, xmlparser({trim: false, explicitArray: false}), webadmin.receive);
 
 }

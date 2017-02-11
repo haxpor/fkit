@@ -2,6 +2,12 @@
  * Module dependencies.
  */
 var util = require("util");
+var rFormatter = require("../message/reply-msg-format.js");
+var commands = require("../message/commands");
+var errorCode = require("../core/error-code");
+
+// processor's functions to process message for each command type
+var p_translate = require("../message/processor-translate");
 
 exports.index = function(req, res, next) {
 
@@ -34,32 +40,105 @@ exports.index = function(req, res, next) {
 	}
 }
 
-exports.message = function (from, to, message) {
-  // figure out if this is for us
- 	return "i Love u";
+/*
+	Process message then return object containing content and its message type.
+
+	Return: { content: *String*, type: *String*, ... }
+	... depends on type of message to return
+ */
+exports.processMessage = function (from, to, message) {
+
+	return new Promise( (resolve, reject) => {
+
+		// no command, or just plain text => msg
+	 	if (message.search(":") == -1) {
+	 		return resolve({ content: 'You entered: ' + message, type: 'text' });
+	 	}
+	 	// other commands
+	 	else {
+	 		var tokens = message.split(" ");
+	 		var command = tokens[0];
+	 		tokens.shift();	// get only params
+	 		if (tokens.length > 0) {
+	 			console.log('root');
+	 			return exports.processCommand(command, tokens, resolve, reject);
+	 		}
+	 		else {
+	 			// malformed
+	 			var e = new Error('Messge is malformed. Follow : by a command name.');
+	 			e.code = errorCode.commandMalformed;
+	 			return reject(e);
+	 		}
+	 	}
+	});
+}
+
+// relay promise
+exports.processCommand = function(command, params, resolve, reject) {
+	// no command
+	if (command == null || command == "") {
+		var e = new Error("Command is null or empty.");
+		e.code = errorCode.commandIsNullOrEmpty;
+		return reject(e);
+	}
+
+	// lower case input command
+	var lcCommand = command.toLowerCase();
+
+	// check for matching of command then return appropriate result
+	if (lcCommand == commands.translate) {
+		console.log('p_translate');
+		return p_translate(params, resolve, reject);
+	}
+	else {
+		var e = new Error("Command is not recognized. Make sure your input command is correct.");
+		e.code = errorCode.commandNotRecognized;
+		return reject(e);
+	}
 }
 
 exports.receive = function(req, res, next) {
-	//curl -X POST --data @sample.xml http://localhost:5003/ --header "Content-Type:text/xml"
+	console.log("receiving: ", req.body.xml);
 	
-	// { xml: 
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:    { tousername: [ 'gh_5108e39bfd75' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      fromusername: [ 'oDvuOuMVDkSj4iU_Vh3mf0sHjyhg' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      createtime: [ '1394704892' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      msgtype: [ 'text' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      content: [ 'How are you' ],
-	// 	2014-03-13T10:02:10.060573+00:00 app[web.1]:      msgid: [ '5990211898911335179' ] } }
-	
-	
-	tousername = req.body.xml.tousername[0];
-	fromusername = req.body.xml.fromusername[0];
+	// get content sending in from user
+	toUser = req.body.xml.tousername[0];
+	fromUser = req.body.xml.fromusername[0];
 	msgtype = req.body.xml.msgtype[0];
 	content = req.body.xml.content[0];
-	createtime = parseInt(req.body.xml.createtime[0]);
+	creationTime = parseInt(req.body.xml.createtime[0]);
 	res.contentType("application/xml");
-	reply = exports.message(tousername,fromusername,content)
-	str = util.format("<xml><ToUserName>%s</ToUserName><FromUserName>%s</FromUserName><CreateTime>%d</CreateTime><MsgType>text</MsgType><Content><![CDATA[%s]]></Content></xml>",fromusername,tousername,createtime+1,reply);
-	console.log(str);
-	res.send(str);
+
+	var responseStr = null;
+
+	exports.processMessage(toUser, fromUser, content)
+		.then((result) => {
+
+			if (result.type == 'text') {
+				responseStr = rFormatter.msg(result.content, fromUser, toUser, creationTime+1);
+			}
+			else if (result.type == 'link') {
+				//url, title, description, toUser, fromUser, creationTime
+				responseStr = rFormatter.rich(result.content, 'https://66fce469.ngrok.io/fkit/images/sample-pic.jpg', 'Link title', 'Link Description', fromUser, toUser, creationTime+1);
+			}
+
+			console.log("response: ", responseStr);
+			res.send(responseStr);
+
+		}, (e) => {
+			if (e.code == errorCode.commandMalformed) {
+				responseStr = rFormatter.msg(e.message, fromUser, toUser, creationTime+1);
+			}
+			else if (e.code == errorCode.commandIsNullOrEmpty) {
+				responseStr = rFormatter.msg('Unregconized error code. Capture current screenshot and send it to haxpor@gmail.com for support', fromUser, toUser, creationTime+1);
+			}
+			else if (e.code == errorCode.commandNotRecognized) {
+				responseStr = rFormatter.msg(e.message, fromUser, toUser, creationTime+1);
+			}
+			else {
+				responseStr = rFormatter.msg("Error code " + e.code + " [" + e.message + "]", fromUser, toUser, creationTime+1);
+			}
+
+			res.send(responseStr);
+		});
 }
 

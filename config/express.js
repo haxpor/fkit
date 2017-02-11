@@ -21,19 +21,13 @@ module.exports = function (app, config) {
 
 	// use express favicon
 	app.use(favicon(config.root + '/public/images/favicon.ico'));
-
-	
-	
 	app.use(bodyParser());
 	app.locals.pretty = true;
 
-
 	app.use(xmlparser());
 
-
 	//static should be after less-middleware
-	app.use(express.static(config.root + '/public'))
-
+	app.use('/fkit', express.static(config.root + '/public'));
 
 	// expose pkg and node env to views
 	app.use(function (req, res, next) {
@@ -41,6 +35,5 @@ module.exports = function (app, config) {
 		next()
 	})
 
-	app.use(express.logger('tiny'));
-
+	app.use(express.logger('tiny'))
 }

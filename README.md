@@ -29,5 +29,6 @@ If you're looking this page from within WeChat, then just hold down on the image
 ![fkit qr code](qrcode-fkit-wechat-bot.jpg)
 
 # License
-GNU GPL V.3.0. See [LICENSE](https://github.com/haxpor/fkit/blob/master/LICENSE).
 
+[![Creative Commons License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-sa/4.0/)  
+This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://github.com/haxpor/fkit/blob/master/LICENSE).
