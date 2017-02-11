@@ -1,4 +1,4 @@
 module.exports = {
-	msg: 'msg',
+	msg: 'text',
 	link: 'link'
 }

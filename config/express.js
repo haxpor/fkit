@@ -27,7 +27,7 @@ module.exports = function (app, config) {
 	app.use(xmlparser());
 
 	//static should be after less-middleware
-	app.use('/fkit', express.static(config.root + '/public'));
+	app.use(express.static(config.root + '/public'));
 
 	// expose pkg and node env to views
 	app.use(function (req, res, next) {
