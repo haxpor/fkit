@@ -51,7 +51,7 @@ module.exports = function(params, resolve, reject) {
 									content: params[0], 
 									type: wechat_msgType.link, 
 									link_title: _r.trans_result[0].dst,
-									link_description: _r.trans_result[1].dst
+									link_description: _r.trans_result.length > 1 ? _r.trans_result[1].dst : _r.trans_result[0].dst
 								}
 							);
 						}
