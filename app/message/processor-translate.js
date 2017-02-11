@@ -27,7 +27,7 @@ module.exports = function(params, resolve, reject) {
 			if (text == null || text == "") {
 				var e = new Error("Extracted text is null or empty");
 				e.code = errorCode.extractedTextIsNullOrEmpty;
-				reject(e);
+				return reject(e);
 			}
 			else {
 				// translate via Baidut
