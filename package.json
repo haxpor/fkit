@@ -17,10 +17,12 @@
   },
   "dependencies": {
     "async": "~2.1.1",
+    "baidut": "^0.2.1",
     "bfet": "^1.1.1",
     "body-parser": "~1.15.2",
     "express": "~3.21.2",
     "express-xml-bodyparser": "~0.3.0",
+    "html-to-text": "^3.1.0",
     "less-middleware": "^2.2.0",
     "sha1": "^1.1.1",
     "static-favicon": "~2.0.0-alpha",

@@ -118,7 +118,7 @@ exports.receive = function(req, res, next) {
 			}
 			else if (result.type == 'link') {
 				//url, title, description, toUser, fromUser, creationTime
-				responseStr = rFormatter.rich(result.content, 'https://66fce469.ngrok.io/fkit/images/sample-pic.jpg', 'Link title', 'Link Description', fromUser, toUser, creationTime+1);
+				responseStr = rFormatter.rich(result.content, 'https://66fce469.ngrok.io/fkit/images/sample-pic.jpg', result.link_title, result.link_description, fromUser, toUser, creationTime+1);
 			}
 
 			console.log("response: ", responseStr);
