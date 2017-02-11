@@ -5,7 +5,7 @@
 
 var path = require('path');
 var root_path = path.resolve(__dirname + '/../');
-var prefix_path = '/fkit';
+var prefix_path = '/';
 var Baidut = require('baidut');
 
 // set environment for baidut
