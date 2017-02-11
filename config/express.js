@@ -10,6 +10,7 @@ var lessMiddleware = require('less-middleware');
 var pkg = require('../package');
 var path = require('path');
 var xmlparser = require('express-xml-bodyparser');
+var config = require('./config');
 
 /*!
  * Expose
@@ -20,14 +21,14 @@ module.exports = function (app, config) {
 	app.set('showStackError', true)
 
 	// use express favicon
-	app.use(favicon(config.root + '/public/images/favicon.ico'));
+	app.use(config.prefix, favicon(config.root + '/public/images/favicon.ico'));
 	app.use(bodyParser());
 	app.locals.pretty = true;
 
 	app.use(xmlparser());
 
 	//static should be after less-middleware
-	app.use(express.static(config.root + '/public'));
+	app.use(config.prefix, express.static(config.root + '/public'));
 
 	// expose pkg and node env to views
 	app.use(function (req, res, next) {
