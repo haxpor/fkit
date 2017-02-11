@@ -137,6 +137,9 @@ exports.receive = function(req, res, next) {
 			else if (e.code == errorCode.extractedTextIsNullOrEmpty) {
 				responseStr = rFormatter.msg(e.message, fromUser, toUser, creationTime+1);
 			}
+			else if (e.code == errorCode.translatedTextIsEmpty) {
+				responseStr = rFormatter.msg(e.message, fromUser, toUser, creationTime+1);
+			}
 			else {
 				responseStr = rFormatter.msg("Error code " + e.code + " [" + e.message + "]", fromUser, toUser, creationTime+1);
 			}

@@ -34,14 +34,27 @@ module.exports = function(params, resolve, reject) {
 				Baidut.translate(text)
 					.then((_r) => {
 						console.log(_r);
-						return resolve(
-							{ 
-								content: params[0], 
-								type: wechat_msgType.link, 
-								link_title: _r.trans_result[0].dst,
-								link_description: _r.trans_result[1].dst
-							}
-						);
+
+						if (_r.trans_result == null || _r.trans_result == undefined) {
+							var e = new Error("Translated text is empty.");
+							e.code = errorCode.translatedTextIsEmpty;
+							return reject(e);
+						}
+						else if (_r.trans_result != null && _r.trans_result.length <= 0) {
+							var e = new Error("Translated text is empty.");
+							e.code = errorCode.translatedTextIsEmpty;
+							return reject(e);
+						}
+						else {
+							return resolve(
+								{ 
+									content: params[0], 
+									type: wechat_msgType.link, 
+									link_title: _r.trans_result[0].dst,
+									link_description: _r.trans_result[1].dst
+								}
+							);
+						}
 					}, (_e) => {
 						return reject(_e);
 					});
