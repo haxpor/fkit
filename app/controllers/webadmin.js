@@ -9,6 +9,8 @@ var errorCode = require("../core/error-code");
 // processor's functions to process message for each command type
 var p_translate = require("../message/processor-translate");
 
+var wechatMsgType = require("../message/wechat-msgtype");
+
 exports.index = function(req, res, next) {
 
 	// verify signature that the request is sent by WeChat Official Account System
@@ -60,7 +62,6 @@ exports.processMessage = function (from, to, message) {
 	 		var command = tokens[0];
 	 		tokens.shift();	// get only params
 	 		if (tokens.length > 0) {
-	 			console.log('root');
 	 			return exports.processCommand(command, tokens, resolve, reject);
 	 		}
 	 		else {
@@ -87,7 +88,6 @@ exports.processCommand = function(command, params, resolve, reject) {
 
 	// check for matching of command then return appropriate result
 	if (lcCommand == commands.translate) {
-		console.log('p_translate');
 		return p_translate(params, resolve, reject);
 	}
 	else {
@@ -113,10 +113,10 @@ exports.receive = function(req, res, next) {
 	exports.processMessage(toUser, fromUser, content)
 		.then((result) => {
 
-			if (result.type == 'text') {
+			if (result.type == wechatMsgType.text) {
 				responseStr = rFormatter.msg(result.content, fromUser, toUser, creationTime+1);
 			}
-			else if (result.type == 'link') {
+			else if (result.type == wechatMsgType.link) {
 				//url, title, description, toUser, fromUser, creationTime
 				responseStr = rFormatter.rich(result.content, 'https://api.wasin.io/fkit/images/sample-pic.jpg', result.link_title, result.link_description, fromUser, toUser, creationTime+1);
 			}
