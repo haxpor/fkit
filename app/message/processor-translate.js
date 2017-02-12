@@ -38,7 +38,7 @@ function combineAllTransResult(trans) {
 
 function findFirstSrcOfImg(postProcessedText) {
 	// find src for the first found element only
-	var regex = /<img.*?src=['"](.*?)['"]/;
+	var regex = /<img.*?src=['"](.*?)['"]/i;
 	return regex.exec(postProcessedText)[1].replace(/\s/g, '%20');
 }
 
