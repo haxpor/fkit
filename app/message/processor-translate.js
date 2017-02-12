@@ -5,7 +5,6 @@
  * require it: var p_translate = require('processor-translate')
  * use it: p_translate(params)
  */
-
 var bfet = require('bfet');
 var htmlToText = require('html-to-text');
 var Baidut = require('baidut');
