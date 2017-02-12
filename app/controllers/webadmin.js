@@ -118,7 +118,7 @@ exports.receive = function(req, res, next) {
 			}
 			else if (result.type == wechatMsgType.link) {
 				//url, title, description, toUser, fromUser, creationTime
-				responseStr = rFormatter.rich(result.content, process.env.FKIT_URL + config.prefix + '/images/sample-pic.jpg', result.link_title, result.link_description, fromUser, toUser, creationTime+1);
+				responseStr = rFormatter.rich(result.content, result.link_pic, result.link_title, result.link_description, fromUser, toUser, creationTime+1);
 			}
 
 			console.log("response: ", responseStr);
