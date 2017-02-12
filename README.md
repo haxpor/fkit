@@ -13,6 +13,14 @@ To make verification system works, you need to get token from dashboard and set 
 * On server (production environment), or local system (development environment), execute `export FKIT_TOKEN=xxxx` in which `xxxx` is token you got from previous step.
 * To make it effective every time, and every login session, add `export FKIT_TOKEN=xxxx` inside `~/.bash_profile` too.
 
+## Set up Bot's URL
+
+Internally bot will send full URL for users to access resource which required it to know beforehand.
+Set this via environment variable again as follows.
+
+* On server (production environment), or local system (development environment), execute `export FKIT_URL=xxxx` in which `xxxx` is something like `https://yourapi.domain.com/bot` (without slash `/` at the end). 
+* To make it effective every time, and every login session. We do the same as in case of token in previous section. Add `export FKIT_URL=xxxx` inside `~/.bash_profile` too.
+
 # Start the Bot
 
 Follow the following step to start the bot
