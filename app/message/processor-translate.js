@@ -15,6 +15,7 @@ var sha1 = require('sha1');
 var commands = require('./commands');
 var errorCode = require('../core/error-code');
 var config = require('../../config/config');
+var posttextProcessor = require('../util/posttext-processor');
 
 // combine array of translated texts result from Baidu
 // note: trans maintain the same structure of data sending back from Baidu
@@ -28,9 +29,17 @@ function combineAllTransResult(trans) {
 
 	var formed = "";
 	for (let i=0; i<trans.length; i++) {
-		formed += trans[i].dst + "<br/><br/>";
+		// do post-process on text then concatenate to result string
+		formed += "<p>" + trans[i].dst + "</p>";
 	}
+
 	return formed;
+}
+
+function findFirstSrcOfImg(postProcessedText) {
+	// find src for the first found element only
+	var regex = /<img.*?src=['"](.*?)['"]/;
+	return regex.exec(postProcessedText)[1].replace(/\s/g, '%20');
 }
 
 module.exports = function(params, resolve, reject) {
@@ -43,7 +52,9 @@ module.exports = function(params, resolve, reject) {
 			console.log('got result from bfet');
 
 			// convert from html to nice text
-			var text = htmlToText.fromString(result, {});
+			var text = htmlToText.fromString(result, {
+				noLinkBrackets: true
+			});
 
 			if (text == null || text == "") {
 				var e = new Error("Extracted text is null or empty");
@@ -59,7 +70,6 @@ module.exports = function(params, resolve, reject) {
 
 				Baidut.translate(text, opts)
 					.then((_r) => {
-						console.log(_r);
 
 						if (_r.trans_result == null || _r.trans_result == undefined) {
 							var e = new Error("Translated text is empty.");
@@ -77,29 +87,34 @@ module.exports = function(params, resolve, reject) {
 							// filename = translated text + time + url + command
 							var salt = (new Date).getTime();
 							let filename = sha1(_r.trans_result[0].dst + salt + params[0] + commands.translate);
-							console.log("sha1: " + filename);
+
+							// do post process
+							var postProcessedText = posttextProcessor(combineAllTransResult(_r.trans_result));
 
 							// write extracted text to file
 							// note: it's synchronized
-							console.log(config.root + "/public/gens/" + filename + ".html");
-							fs.writeFileSync(config.root + "/public/gens/" + filename + ".html", combineAllTransResult(_r.trans_result), function(err) {
+							fs.writeFileSync(config.root + "/public/gens/" + filename + ".html", postProcessedText, function(err) {
 								if (err) {
 									var e = new Error("Error writing translated text to file.");
 									e.code = errorCode.writeTranslatedTextToFileError;
 									return reject(e);
-								}
-								else {
-									console.log('wrote translated text to file successfully.');
 								}
 							});
 
 							// url to our generated html
 							var genUrl = process.env.FKIT_URL + config.prefix + "/gens/" + filename + ".html";
 
+							// find thumbnail link for generated html
+							var linkPicUrl = findFirstSrcOfImg(postProcessedText);
+							if (linkPicUrl == null || linkPicUrl == "") {
+								linkPicUrl = process.env.FKIT_URL + config.prefix + '/images/sample-pic.jpg';
+							}
+
 							return resolve(
 								{ 
 									content: genUrl, 
 									type: wechat_msgType.link, 
+									link_pic: linkPicUrl,
 									link_title: _r.trans_result[0].dst,
 									link_description: _r.trans_result.length > 1 ? _r.trans_result[1].dst : _r.trans_result[0].dst
 								}

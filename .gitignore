@@ -9,3 +9,9 @@ node_modules/
 # this will elimiate a need for a bot to check for existing directory before writing a file
 public/gens/*.html
 !public/gens/.gitkeep
+
+# ignore nodemon.json
+# as we need to develop and debug html-to-text to work with fkit
+# this will greatly reduce time
+# what you configured in nodemon.json will affect only for your local system, not the tree
+nodemon.json
