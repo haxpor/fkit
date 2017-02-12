@@ -28,7 +28,7 @@ function combineAllTransResult(trans) {
 
 	var formed = "";
 	for (let i=0; i<trans.length; i++) {
-		formed += trans[i].dst;
+		formed += trans[i].dst + "<br/><br/>";
 	}
 	return formed;
 }
@@ -52,7 +52,12 @@ module.exports = function(params, resolve, reject) {
 			}
 			else {
 				// translate via Baidut
-				Baidut.translate(text)
+				var opts = {
+					from_lang: params[1] != null && params[1] != undefined ? params[1] : 'zh',
+					to_lang: params[2] != null && params[2] != undefined ? params[2] : 'en'
+				};
+
+				Baidut.translate(text, opts)
 					.then((_r) => {
 						console.log(_r);
 
