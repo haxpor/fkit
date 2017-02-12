@@ -10,6 +10,28 @@ var htmlToText = require('html-to-text');
 var Baidut = require('baidut');
 var wechat_msgType = require('./wechat-msgtype');
 var errorCode = require('../core/error-code');
+var fs = require('fs');
+var sha1 = require('sha1');
+var commands = require('./commands');
+var errorCode = require('../core/error-code');
+var config = require('../../config/config');
+
+// combine array of translated texts result from Baidu
+// note: trans maintain the same structure of data sending back from Baidu
+// return combined translated string
+function combineAllTransResult(trans) {
+	if (trans == null || trans == undefined)
+		return null;
+
+	if (trans != null && trans.length <= 0)
+		return null;
+
+	var formed = "";
+	for (let i=0; i<trans.length; i++) {
+		formed += trans[i].dst;
+	}
+	return formed;
+}
 
 module.exports = function(params, resolve, reject) {
 
@@ -45,9 +67,33 @@ module.exports = function(params, resolve, reject) {
 							return reject(e);
 						}
 						else {
+
+							// form file name
+							// filename = translated text + time + url + command
+							var salt = (new Date).getTime();
+							let filename = sha1(_r.trans_result[0].dst + salt + params[0] + commands.translate);
+							console.log("sha1: " + filename);
+
+							// write extracted text to file
+							// note: it's synchronized
+							console.log(config.root + "/public/gens/" + filename + ".html");
+							fs.writeFileSync(config.root + "/public/gens/" + filename + ".html", combineAllTransResult(_r.trans_result), function(err) {
+								if (err) {
+									var e = new Error("Error writing translated text to file.");
+									e.code = errorCode.writeTranslatedTextToFileError;
+									return reject(e);
+								}
+								else {
+									console.log('wrote translated text to file successfully.');
+								}
+							});
+
+							// url to our generated html
+							var genUrl = process.env.FKIT_URL + config.prefix + "/gens/" + filename + ".html";
+
 							return resolve(
 								{ 
-									content: params[0], 
+									content: genUrl, 
 									type: wechat_msgType.link, 
 									link_title: _r.trans_result[0].dst,
 									link_description: _r.trans_result.length > 1 ? _r.trans_result[1].dst : _r.trans_result[0].dst

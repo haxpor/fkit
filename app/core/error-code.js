@@ -3,5 +3,6 @@ module.exports = {
 	commandIsNullOrEmpty: 2,
 	commandNotRecognized: 3,
 	extractedTextIsNullOrEmpty: 4,
-	translatedTextIsEmpty: 5
+	translatedTextIsEmpty: 5,
+	writeTranslatedTextToFileError: 6
 }

@@ -5,4 +5,7 @@ node_modules/
 *.log
 
 # tmp files for serving translated website to user
-tmp-gen/
+# we still keep .gitkeep to keep such directory in the tree
+# this will elimiate a need for a bot to check for existing directory before writing a file
+public/gens/*.html
+!public/gens/.gitkeep

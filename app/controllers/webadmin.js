@@ -9,6 +9,7 @@ var wechatMsgType = require("../message/wechat-msgtype");
 
 // processor's functions to process message for each command type
 var p_translate = require("../message/processor-translate");
+var config = require('../../config/config');
 
 exports.index = function(req, res, next) {
 
@@ -117,7 +118,7 @@ exports.receive = function(req, res, next) {
 			}
 			else if (result.type == wechatMsgType.link) {
 				//url, title, description, toUser, fromUser, creationTime
-				responseStr = rFormatter.rich(result.content, 'https://api.wasin.io/fkit/images/sample-pic.jpg', result.link_title, result.link_description, fromUser, toUser, creationTime+1);
+				responseStr = rFormatter.rich(result.content, process.env.FKIT_URL + config.prefix + '/images/sample-pic.jpg', result.link_title, result.link_description, fromUser, toUser, creationTime+1);
 			}
 
 			console.log("response: ", responseStr);
