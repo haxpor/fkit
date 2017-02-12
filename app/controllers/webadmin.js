@@ -5,11 +5,10 @@ var util = require("util");
 var rFormatter = require("../message/reply-msg-format.js");
 var commands = require("../message/commands");
 var errorCode = require("../core/error-code");
+var wechatMsgType = require("../message/wechat-msgtype");
 
 // processor's functions to process message for each command type
 var p_translate = require("../message/processor-translate");
-
-var wechatMsgType = require("../message/wechat-msgtype");
 
 exports.index = function(req, res, next) {
 
