@@ -61,8 +61,15 @@ function boldHeadText(resultText) {
 
 function img(resultText) {
 	return resultText.replace(/\[(.+?)\]/ig, function($0, $1) { 
-
 		return "<img src=\"" + $1 + "\" class='img-responsive' style='text-align: center; margin: auto;'/>";
+	});
+}
+
+function url(resultText) {
+	return resultText.replace(/([^\s"])(http(s?)?:\/\/[^\s]+)/ig, function($0, $1, $2) { 
+		// also include $1 as we eat it up in first (), so we include it for whatever it is
+		var url = $1 + "<a href=\"" + $2 + "\">" + $2 + "</a>";
+		return url;
 	});
 }
 
@@ -74,6 +81,7 @@ module.exports = function(resultText) {
 	resultText = boldHeadText(resultText);
 
 	resultText = img(resultText);
+	resultText = url(resultText);
 
 	resultText = suffix(resultText);
 	return resultText;

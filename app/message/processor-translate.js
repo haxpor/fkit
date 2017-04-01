@@ -52,7 +52,7 @@ module.exports = function(params, resolve, reject) {
 			console.log('got result from bfet');
 
 			// convert from html to nice text
-			var text = htmlToText.fromString(result, {
+			var text = htmlToText.fromString(result.response, {
 				noLinkBrackets: true
 			});
 
