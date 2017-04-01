@@ -29,11 +29,22 @@ function combineAllTransResult(trans) {
 
 	var formed = "";
 	for (let i=0; i<trans.length; i++) {
-		// do post-process on text then concatenate to result string
-		formed += "<p>" + trans[i].dst + "</p>";
+		// if it's URL then we use source as result
+		if (testIfURL(trans[i].src)) {
+			formed += "<p>" + trans[i].src + "</p>\n";
+		}
+		else {
+			// do post-process on text then concatenate to result string
+			formed += "<p>" + trans[i].dst + "</p>\n";
+		}
 	}
 
 	return formed;
+}
+
+function testIfURL(text) {
+	let regex = /(http(s?)?:\/\/[^\s]+)/ig;
+	return regex.test(text);
 }
 
 function findFirstSrcOfImg(postProcessedText) {

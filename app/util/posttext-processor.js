@@ -37,23 +37,18 @@ function boldHeadText(resultText) {
 
 	var pResult = "";
 
-	var i=0;
+	var isFirstLine = true;
 
 	return resultText.replace(/<p>(.+?)<\/p>/ig, function($0, $1) { 
 
 		var innerText = $1;
 
 		// always process for title (first element)
-		if (i == 0) {
-			i++;
+		if (isFirstLine) {
+			isFirstLine = false;
 			return "<h1>" + $1 + "</h1>";				
 		}
-		else if (innerText.length <= 50 && innerText.search(/\./) == -1) {
-			i++;
-			return "<h3>" + $1 + "</h3>";
-		}
 		else {
-			i++;
 			return $0;
 		}
 	});
@@ -68,8 +63,7 @@ function img(resultText) {
 function url(resultText) {
 	return resultText.replace(/([^\s"])(http(s?)?:\/\/[^\s]+)/ig, function($0, $1, $2) { 
 		// also include $1 as we eat it up in first (), so we include it for whatever it is
-		var url = $1 + "<a href=\"" + $2 + "\">" + $2 + "</a>";
-		return url;
+		return $1 + "<a href=\"" + $2 + "\">" + $2 + "</a>";
 	});
 }
 
