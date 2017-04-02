@@ -37,23 +37,18 @@ function boldHeadText(resultText) {
 
 	var pResult = "";
 
-	var i=0;
+	var isFirstLine = true;
 
 	return resultText.replace(/<p>(.+?)<\/p>/ig, function($0, $1) { 
 
 		var innerText = $1;
 
 		// always process for title (first element)
-		if (i == 0) {
-			i++;
+		if (isFirstLine) {
+			isFirstLine = false;
 			return "<h1>" + $1 + "</h1>";				
 		}
-		else if (innerText.length <= 50 && innerText.search(/\./) == -1) {
-			i++;
-			return "<h3>" + $1 + "</h3>";
-		}
 		else {
-			i++;
 			return $0;
 		}
 	});
@@ -61,8 +56,14 @@ function boldHeadText(resultText) {
 
 function img(resultText) {
 	return resultText.replace(/\[(.+?)\]/ig, function($0, $1) { 
-
 		return "<img src=\"" + $1 + "\" class='img-responsive' style='text-align: center; margin: auto;'/>";
+	});
+}
+
+function url(resultText) {
+	return resultText.replace(/([^\s"])(http(s?)?:\/\/[^\s]+)/ig, function($0, $1, $2) { 
+		// also include $1 as we eat it up in first (), so we include it for whatever it is
+		return $1 + "<a href=\"" + $2 + "\">" + $2 + "</a>";
 	});
 }
 
@@ -74,6 +75,7 @@ module.exports = function(resultText) {
 	resultText = boldHeadText(resultText);
 
 	resultText = img(resultText);
+	resultText = url(resultText);
 
 	resultText = suffix(resultText);
 	return resultText;
