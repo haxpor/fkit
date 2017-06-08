@@ -21,6 +21,17 @@ Set this via environment variable again as follows.
 * On server (production environment), or local system (development environment), execute `export FKIT_URL=xxxx` in which `xxxx` is something like `https://yourapi.domain.com/bot` (without slash `/` at the end). 
 * To make it effective every time, and every login session. We do the same as in case of token in previous section. Add `export FKIT_URL=xxxx` inside `~/.bash_profile` too.
 
+## Environment Variables
+
+In summary, Fkit uses the following environment variables to make it operational
+
+* `FKIT_TOKEN=xxxx` which is token you get from WeChat Admin Page's Token section
+* `FKIT_URL=xxxx` which is url webhook setup i.e. `https://yourapi.domain.com/bot`
+* `FKIT_APPID=xxxx` which is Baidu's fanyi (translation service) app id
+* `FKIT_KEY=xxxx` which is Baidu's fanyi (translation service) key
+
+Make sure you have this set up and they are known by your system before running the application.
+
 # Start the Bot
 
 Follow the following step to start the bot
